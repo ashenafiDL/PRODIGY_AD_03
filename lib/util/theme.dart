@@ -12,4 +12,9 @@ var darkTheme = ThemeData(
       iconSize: WidgetStatePropertyAll(32.0),
     ),
   ),
+  filledButtonTheme: const FilledButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: WidgetStatePropertyAll(Color(0xFFf79415)),
+    ),
+  ),
 );

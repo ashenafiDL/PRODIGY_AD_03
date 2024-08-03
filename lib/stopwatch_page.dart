@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_stopwatch/modal_bottom_sheet.dart';
 import 'package:flutter_stopwatch/util/format_time.dart';
+import 'package:flutter_stopwatch/util/stat.dart';
 
 class StopwatchPage extends StatefulWidget {
   const StopwatchPage({super.key});
@@ -38,6 +40,10 @@ class _StopwatchPageState extends State<StopwatchPage> {
     if (_stopwatch.isRunning) {
       _laps.insert(0, _stopwatch.elapsedMilliseconds);
     } else {
+      if (_laps.isNotEmpty) {
+        var res = calculateLapStats(_laps);
+        modalBottomSheet(context, res);
+      }
       _stopwatch.reset();
       _laps.clear();
     }
@@ -119,7 +125,9 @@ class _StopwatchPageState extends State<StopwatchPage> {
                 IconButton.filled(
                   onPressed: handleLapReset,
                   icon: Icon(
-                    _stopwatch.isRunning ? Icons.flag : Icons.stop,
+                    _stopwatch.isRunning
+                        ? Icons.flag_rounded
+                        : Icons.stop_rounded,
                   ),
                 ),
               if (_stopwatch.isRunning || _stopwatch.elapsedMilliseconds > 0)
@@ -127,7 +135,9 @@ class _StopwatchPageState extends State<StopwatchPage> {
               IconButton.filled(
                 onPressed: handleStartStop,
                 icon: Icon(
-                  _stopwatch.isRunning ? Icons.pause : Icons.play_arrow,
+                  _stopwatch.isRunning
+                      ? Icons.pause_rounded
+                      : Icons.play_arrow_rounded,
                 ),
               ),
             ],
