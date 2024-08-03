@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_stopwatch/stopwatch_page.dart';
 import 'package:flutter_stopwatch/util/theme.dart';
 
@@ -13,19 +14,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Stopwatch',
-      theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: ThemeMode.system,
-      home: SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            elevation: 0.0,
-            scrolledUnderElevation: 0.0,
-            backgroundColor: Colors.transparent,
-            title: const Text("Flutter Stopwatch"),
+      themeMode: ThemeMode.dark,
+      home: Scaffold(
+        appBar: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle(
+            systemNavigationBarColor:
+                darkTheme.scaffoldBackgroundColor, // Navigation bar
+            statusBarColor: darkTheme.scaffoldBackgroundColor, // Status bar
           ),
-          body: const StopwatchPage(),
+          title: const Text("Flutter Stopwatch"),
         ),
+        body: const StopwatchPage(),
       ),
     );
   }

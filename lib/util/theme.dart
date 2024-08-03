@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
-const seedColor = Colors.blue;
-const useMaterial3 = true;
-
-var lightTheme = ThemeData(
-  // colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
-  brightness: Brightness.light,
-  useMaterial3: useMaterial3,
-);
-
 var darkTheme = ThemeData(
-  // colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
   brightness: Brightness.dark,
-  useMaterial3: useMaterial3,
+  useMaterial3: true,
+  scaffoldBackgroundColor: const Color(0xFF20232a),
+  appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
+  iconButtonTheme: const IconButtonThemeData(
+    style: ButtonStyle(
+      iconColor: WidgetStatePropertyAll(Colors.white),
+      backgroundColor: WidgetStatePropertyAll(Color(0xFFf79415)),
+      iconSize: WidgetStatePropertyAll(32.0),
+    ),
+  ),
 );
