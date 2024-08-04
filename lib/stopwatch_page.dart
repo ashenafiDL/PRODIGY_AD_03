@@ -27,28 +27,23 @@ class _StopwatchPageState extends State<StopwatchPage> {
   }
 
   void handleStartStop() {
-    if (_stopwatch.isRunning) {
-      _stopwatch.stop();
-    } else {
-      _stopwatch.start();
-    }
-
-    setState(() {});
+    setState(() {
+      _stopwatch.isRunning ? _stopwatch.stop() : _stopwatch.start();
+    });
   }
 
   void handleLapReset() {
-    if (_stopwatch.isRunning) {
-      _laps.insert(0, _stopwatch.elapsedMilliseconds);
-    } else {
-      if (_laps.isNotEmpty) {
-        var res = calculateLapStats(_laps);
-        modalBottomSheet(context, res);
+    setState(() {
+      if (_stopwatch.isRunning) {
+        _laps.insert(0, _stopwatch.elapsedMilliseconds);
+      } else {
+        if (_laps.isNotEmpty) {
+          modalBottomSheet(context, calculateLapStats(_laps));
+        }
+        _stopwatch.reset();
+        _laps.clear();
       }
-      _stopwatch.reset();
-      _laps.clear();
-    }
-
-    setState(() {});
+    });
   }
 
   @override
@@ -59,90 +54,123 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    var orientation = MediaQuery.of(context).orientation;
+    return orientation == Orientation.portrait
+        ? _buildPortraitLayout()
+        : _buildLandscapeLayout();
+  }
+
+  Widget _buildLandscapeLayout() {
+    return Row(
       children: [
-        Expanded(
-          child: Center(
-            child: Text(
-              formatTime(_stopwatch.elapsedMilliseconds),
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 56.0,
-              ),
-            ),
-          ),
-        ),
         if (_laps.isNotEmpty)
           Expanded(
+            child: _buildLapList(),
+          ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Lap'),
-                      Text('Lap Time'),
-                      Text('Total Time'),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: ListView.builder(
-                      itemCount: _laps.length,
-                      itemBuilder: (context, index) {
-                        final lapTime = index == _laps.length - 1
-                            ? _laps[index]
-                            : _laps[index] - _laps[index + 1];
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('${_laps.length - index}'),
-                              Text('+${formatTime(lapTime)}'),
-                              Text(formatTime(_laps[index])),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                Expanded(child: Center(child: _buildClock())),
+                Expanded(child: Center(child: _buildControlButtons())),
               ],
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Column _buildPortraitLayout() {
+    return Column(
+      children: [
+        Expanded(child: _buildClock()),
+        if (_laps.isNotEmpty) Expanded(child: _buildLapList()),
         Padding(
           padding: const EdgeInsets.all(32.0),
+          child: _buildControlButtons(),
+        )
+      ],
+    );
+  }
+
+  Widget _buildClock() {
+    return Center(
+      child: Text(
+        formatTime(_stopwatch.elapsedMilliseconds),
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 56.0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildControlButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (_stopwatch.isRunning || _stopwatch.elapsedMilliseconds > 0)
+          IconButton.filled(
+            onPressed: handleLapReset,
+            icon: Icon(
+              _stopwatch.isRunning ? Icons.flag_rounded : Icons.stop_rounded,
+            ),
+          ),
+        if (_stopwatch.isRunning || _stopwatch.elapsedMilliseconds > 0)
+          const SizedBox(width: 32.0),
+        IconButton.filled(
+          onPressed: handleStartStop,
+          icon: Icon(
+            _stopwatch.isRunning
+                ? Icons.pause_rounded
+                : Icons.play_arrow_rounded,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLapList() {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (_stopwatch.isRunning || _stopwatch.elapsedMilliseconds > 0)
-                IconButton.filled(
-                  onPressed: handleLapReset,
-                  icon: Icon(
-                    _stopwatch.isRunning
-                        ? Icons.flag_rounded
-                        : Icons.stop_rounded,
-                  ),
-                ),
-              if (_stopwatch.isRunning || _stopwatch.elapsedMilliseconds > 0)
-                const SizedBox(width: 32.0),
-              IconButton.filled(
-                onPressed: handleStartStop,
-                icon: Icon(
-                  _stopwatch.isRunning
-                      ? Icons.pause_rounded
-                      : Icons.play_arrow_rounded,
-                ),
-              ),
+              Text('Lap'),
+              Text('Lap Time'),
+              Text('Total Time'),
             ],
           ),
-        )
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: ListView.builder(
+              itemCount: _laps.length,
+              itemBuilder: (context, index) {
+                final lapTime = index == _laps.length - 1
+                    ? _laps[index]
+                    : _laps[index] - _laps[index + 1];
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('${_laps.length - index}'),
+                      Text('+${formatTime(lapTime)}'),
+                      Text(formatTime(_laps[index])),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
       ],
     );
   }
